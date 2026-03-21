@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 
 
 
-export function autUser(req, res, next) {
+export function authUser(req, res, next) {
     const token = req.cookies.token;
 
     if(!token) {
