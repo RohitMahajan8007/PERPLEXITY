@@ -54,6 +54,10 @@ app.use(cookieParser());
 app.get("/health", (req, res) => res.json({ message: "Server is running", time: new Date() }));
 app.get("/api/ping", (req, res) => res.json({ status: "alive" }));
 
+app.get("/ping", (req, res) => {
+  res.send("Server is alive");
+});
+
 // 5. API Routers
 app.use("/api/auth", authRouter);
 app.use("/api/chats", chatRouter);
