@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: "http://localhost:3000",
+    baseURL: window.location.hostname === "localhost" ? "http://localhost:3000" : window.location.origin,
     withCredentials: true,
 })
 
@@ -22,6 +22,6 @@ export const getMessages = async (chatId) => {
 }
 
 export const deleteChat = async (chatId) => {
-    const response = await api.delete(`/api/chats/delete/${chatId}`)
+    const response = await api.delete(`/api/chats/${chatId}`)
     return response.data
 }

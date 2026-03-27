@@ -1,6 +1,6 @@
 import { initializeSocketConnection } from "../service/chat.socket";
 import { sendMessage, getChats, getMessages } from "../service/chat.api";
-import { setChats, setCurrentChatId, setError, setLoading, createNewChat, addNewMessage, addMessages } from "../chat.slice";
+import { setChats, setCurrentChatId, setError, setLoading, createNewChat, addNewMessage, addMessages, replaceChatId } from "../chat.slice";
 import { useDispatch } from "react-redux";
 
 
@@ -15,14 +15,16 @@ export const useChat = () => {
         let targetChatId = chatId;
         let isTemp = false;
 
-        if (!targetChatId) {
-            targetChatId = 'temp-' + Date.now();
+        if (!targetChatId || (typeof targetChatId === 'string' && targetChatId.startsWith('temp-'))) {
             isTemp = true;
-            dispatch(createNewChat({
-                chatId: targetChatId,
-                title: message.substring(0, 30) + (message.length > 30 ? '...' : ''),
-            }))
-            dispatch(setCurrentChatId(targetChatId))
+            if (!targetChatId) {
+                targetChatId = 'temp-' + Date.now();
+                dispatch(createNewChat({
+                    chatId: targetChatId,
+                    title: message.substring(0, 30) + (message.length > 30 ? '...' : ''),
+                }))
+                dispatch(setCurrentChatId(targetChatId))
+            }
         }
 
         dispatch(addNewMessage({
@@ -35,23 +37,23 @@ export const useChat = () => {
             const data = await sendMessage({ message, chatId: isTemp ? null : targetChatId })
             const { chat, aiMessage } = data
             
-            let finalChatId = targetChatId;
-            if (isTemp) {
-                finalChatId = chat._id;
-                dispatch({
-                    type: 'chat/replaceChatId',
-                    payload: { oldId: targetChatId, newId: finalChatId, chatData: chat }
-                });
+            if (isTemp && chat) {
+                dispatch(replaceChatId({ 
+                    oldId: targetChatId, 
+                    newId: chat._id, 
+                    chatData: chat 
+                }));
+                targetChatId = chat._id;
             }
 
             dispatch(addNewMessage({
-                chatId: finalChatId,
+                chatId: targetChatId,
                 content: aiMessage.content,
                 role: aiMessage.role,
             }))
         } catch (error) {
             console.error("Error sending message:", error);
-            dispatch(setError(error.message));
+            dispatch(setError(error.response?.data?.message || "Error sending message"));
         } finally {
             dispatch(setLoading(false));
         }

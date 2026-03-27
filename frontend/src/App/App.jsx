@@ -1,4 +1,4 @@
-import { RouterProvider } from "react-router"
+import { RouterProvider } from "react-router-dom"
 import { router } from "./app.routes"
 import { useAuth } from "../features/Auth/Hook/useAuth"
 import { useEffect } from "react"
@@ -10,7 +10,6 @@ function App() {
 
   useEffect(() => {
     auth.handleGetMe()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (

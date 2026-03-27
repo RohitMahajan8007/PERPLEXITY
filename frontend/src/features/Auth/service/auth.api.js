@@ -2,7 +2,9 @@ import axios from 'axios'
 
 
 const api = axios.create({
-    baseURL: "http://localhost:3000",
+    baseURL: (window.location.protocol === "http:" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") && window.location.port !== "3000")
+        ? "http://127.0.0.1:3000" 
+        : "",
     withCredentials: true,
 })
 
