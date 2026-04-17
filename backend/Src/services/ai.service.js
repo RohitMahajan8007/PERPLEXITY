@@ -18,13 +18,8 @@ const pdf = require("pdf-parse");
 
 
 const geminiModel = new ChatGoogleGenerativeAI({
-  model: "gemini-flash-latest",
+  model: "gemini-2.5-flash",
   apiKey: process.env.GEMINI_API_KEY,
-});
-
-const mistralModel = new ChatMistralAI({
-  model: "mistral-small-latest",
-  apiKey: process.env.MISTRAL_API_KEY,
 });
 
 
@@ -62,7 +57,7 @@ const sendEmailTool = tool(
 
 
 const agent = createReactAgent({
-  llm: mistralModel,
+  llm: geminiModel,
   tools: [searchInternetTool, sendEmailTool],
   systemMessage: "Use tools when needed. If the user asks to send an email with a joke or any info, use the sendEmail tool. For jokes, generate a funny HTML template."
 });
@@ -197,7 +192,7 @@ export async function generateChatTitle(message) {
     cleanedMessage = "User uploaded a document";
   }
 
-  const response = await mistralModel.invoke([
+  const response = await geminiModel.invoke([
     new SystemMessage(`
 You are a helpful assistant that generates concise and descriptive titles (2-4 words).
     `),
@@ -211,7 +206,7 @@ Generate a title for this message:
 }
 
 export async function generateJoke() {
-  const response = await mistralModel.invoke([
+  const response = await geminiModel.invoke([
     new SystemMessage("You are a funny comedian. Generate a short, funny joke for a new user who just signed up for Perplexity."),
     new HumanMessage("Tell me a joke!"),
   ]);

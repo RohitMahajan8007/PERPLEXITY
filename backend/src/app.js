@@ -22,7 +22,7 @@ app.use((req, res, next) => {
 // 2. Trust Proxy for Render
 app.set('trust proxy', 1);
 
-// 3. CORS Configuration (Added OPTIONS and better handling)
+// 3. CORS Configuration
 app.use(
   cors({
     origin: function (origin, callback) {

@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { setCurrentChatId, setChats } from '../chat.slice';
 import { deleteChat } from '../service/chat.api';
+import { logout as logoutApi } from '../../Auth/service/auth.api';
 import * as pdfjsLib from 'pdfjs-dist';
 import { marked } from 'marked';
 import html2pdf from 'html2pdf.js';
@@ -52,9 +53,13 @@ export const useDashboard = () => {
 
   useEffect(() => {
     chat.initializeSocketConnection()
-    chat.handleGetChats()
-
   }, [])
+
+  useEffect(() => {
+    if (authUser) {
+      chat.handleGetChats()
+    }
+  }, [authUser])
 
   useEffect(() => {
     scrollToBottom()
@@ -122,11 +127,17 @@ export const useDashboard = () => {
     setIsSidebarOpen(false)
   }
 
-  const handleLogout = () => {
-    dispatch({ type: 'auth/setUser', payload: null })
-    dispatch(setChats({}))
-    dispatch(setCurrentChatId(null))
-    localStorage.setItem('perplexity_logged_out', 'true')
+  const handleLogout = async () => {
+    try {
+      await logoutApi()
+    } catch (err) {
+      console.error('Logout API error:', err)
+    } finally {
+      dispatch({ type: 'auth/setUser', payload: null })
+      dispatch(setChats({}))
+      dispatch(setCurrentChatId(null))
+      localStorage.setItem('perplexity_logged_out', 'true')
+    }
   }
 
   const handleDeleteChat = async (e, chatId) => {
